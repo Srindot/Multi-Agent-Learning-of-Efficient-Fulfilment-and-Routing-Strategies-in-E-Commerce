@@ -56,15 +56,28 @@ class Environment:
         self.customers = []
         self.vehicles = []
 
-    def simulation_for_each_episode(self, c2s_decisions, vrp_decisions):
+    def Rl_Decision(self, feature_mateix, adjacency_matrix):
+
+        c2s_decisions, vrp_decisions = 0
+        input_actions = (c2s_decisions, vrp_decisions)
+        c2s_rewards, vrp_rewards = self.calculate_rewards()
+
+
+    def simulation_for_each_episode(self):
+        self.generate_customers()
+        feature_matrix, adjacency_matrix = self.create_graph_matrices()
+        self.Rl_Decision(self, feature_matrix, adjacency_matrix)
+        self.time_lapsed += self.episode_time
+    
+    def simulation(self):
         self.time_lapsed = 0
-        for i in range(0,self.no_of_episodes):
-            
-            self.generate_customers()
-            feature_matrix, adjacency_matrix = self.create_graph_matrices()
-            input_actions = (c2s_decisions, vrp_decisions)
-            self.time_lapsed += self.episode_time
-            return feature_matrix, adjacency_matrix
+        env = Environment()
+        env.reset()
+        for i in range(0, self.no_of_episodes):
+            self.simulation_for_each_episode()
+
+
+
             
     def input_actions(self, c2s_decisions, vrp_decisions):
         # Reset the vehicles list and create instances based on vrp_decisions
@@ -114,14 +127,13 @@ class Environment:
                     # Skip customers whose demands cannot be met by vehicle capacity
                     customer.noof_defered += 1
                     customer.fulfilled = False
-                    
-        # Calculate rewards for C2S and VRP
-        rewards_c2s, rewards_vrp = self.calculate_rewards(c2s_decisions, vrp_decisions)
-        return rewards_c2s, rewards_vrp         
+                             
 
     def calculate_rewards(self, c2s_decisions, vrp_decisions):
         
         def calculate_c2s_reward(decision):
+            a1 = 1 
+            a2 = 2
             customer_id, warehouse_id, defer_flag = decision
             customer = self.customers[customer_id]
             warehouse = self.warehouses[warehouse_id]
@@ -170,6 +182,9 @@ class Environment:
             vrp_rewards.append(Rterm)
             
             return vrp_rewards
+        c2s_rewards = calculate_c2s_reward(c2s_decisions)
+        vrp_rewards = calculate_vrp_reward(vrp_decisions)
+        return c2s_rewards, vrp_rewards
 
 
 
@@ -218,38 +233,6 @@ class Environment:
     
     def norm_1_distance(self, loc1, loc2):
         return (np.mod(loc1[0] - loc2[0])+ np.mod(loc1[1] - loc2[1]))
-    
-    def step(self, actions):
-
-        rewards_for_vrp = []
-        rewards_for_c2s = []
-
-        for action in actions:
-            customer_id, warehouse_id, vehicle_id,  defer_flag = action
-            customer = self.customers[customer_id]
-            warehouse = self.warehouses[warehouse_id]
-            vehicle = self.vehicles[vehicle_id]   
-
-            if defer_flag:
-                rewards.append(-1)
-            
-            else:
-                distance_to_customer = self.distance(warehouse.location, customer.location)
-
-                if customer.demand <= warehouse.current_inventory and customer.demand <= vehicle.capacity:
-                    customer.fulfilled = True
-                    warehouse.current_inventory -= customer.demand 
-                    vehicle.current_load += customer.demand 
-                    vehicle.route.append(customer.location)
-                    delivery_time = distance_to_customer/vehicle.speed
-                    rewards.append( 1 / (delivery_time + 1) )
-                
-                else:
-                    rewards.append(-10)
-
-        return rewards
-
-
 
     def create_graph_matrices(self) -> Tuple[np.ndarray, np.ndarray]:
         n_warehouses = len(self.warehouses)
@@ -338,23 +321,3 @@ class Environment:
 
 
 
-def simulation_start():
-    env = Environment()
-    env.reset()
-
-
-
-
-
- 
-
- # Example usage
-env = Environment()
-env.reset()
-env.spawn_vehicle()
-actions = [
-    (0, 0, 0, False),  
-    (1, 1, 0, True)    
-]
-rewards = env.step(actions)
-print(f"Rewards from actions: {rewards}")

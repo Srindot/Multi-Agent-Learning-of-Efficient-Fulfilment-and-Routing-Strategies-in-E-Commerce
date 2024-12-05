@@ -63,7 +63,7 @@ class Environment:
         c2s_rewards, vrp_rewards = self.calculate_rewards()
 
 
-    def simulation_for_each_episode(self):
+    def simulation_for_each_episodedir(self):
         self.generate_customers()
         feature_matrix, adjacency_matrix = self.create_graph_matrices()
         self.Rl_Decision(self, feature_matrix, adjacency_matrix)

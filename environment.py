@@ -2,7 +2,7 @@
 import random as rnd
 import numpy as np
 from typing import List, Tuple, Dict
-
+import random as rnd
 class Warehouse:
     def __init__ (self, Warehouse_id, location, max_inventory):
         self.warehouse_id = Warehouse_id

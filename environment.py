@@ -1,5 +1,6 @@
 import numpy as np
 import random as rnd
+from typing import Tuple
 
 class Warehouse:
     def __init__(self, warehouse_id, location, max_inventory):
@@ -84,27 +85,7 @@ class Environment:
         return np.sqrt((loc1[0] - loc2[0]) ** 2 + (loc1[1] - loc2[1]) ** 2)
 
     def norm_1_distance(self, loc1, loc2):
-        return np.mod(loc1[0] - loc2[0]) + np.mod(loc1[1] - loc2[1])
-
-    # def create_graph_matrices(self):
-    #     feature_matrix = np.random.rand(self.noof_customers, 3)  # Example feature matrix
-    #     adjacency_matrix = np.random.randint(0, 2, (self.noof_customers, self.noof_customers))  # Example adjacency matrix
-    #     return feature_matrix, adjacency_matrix
-
-
-    # def simulation_for_each_episode(self, gae_model):
-    #     self.generate_customers()
-    #     feature_matrix, adjacency_matrix = self.create_graph_matrices()
-    #     # Perform a forward pass and calculate RMSE
-
-    #     data = Data(x=feature_matrix, edge_index=adjacency_matrix).to(device)
-    #     gae_model.eval()
-    #     with torch.no_grad():
-    #         embeddings = gae_model.encode(data.x, data.edge_index)
-    #     make_decisions(env, gae_model, dqn_model, feature_matrix, adjacency_matrix)
-        
-    #     self.Rl_Decision(feature_matrix, adjacency_matrix)
-    #     self.time_lapsed += self.episode_time
+        return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
 
     def simulation(self):
         self.time_lapsed = 0
@@ -113,7 +94,7 @@ class Environment:
             self.simulation_for_each_episode()
 
     def input_actions(self, c2s_decisions, vrp_decisions):
-        self.vehicles = []  # Clear the list of vehicles
+        # self.vehicles = []  # Clear the list of vehicles
         vehicle_ids = [decision[0] for decision in vrp_decisions]  # Extract vehicle IDs from vrp_decisions
         noof_vehicles = len(set(vehicle_ids))  # Get unique vehicle count
 
@@ -152,7 +133,6 @@ class Environment:
                     customer.noof_defered += 1
                     customer.fulfilled = False
 
-    
 
     def calculate_c2s_reward(self, decision):
         a1 = 1

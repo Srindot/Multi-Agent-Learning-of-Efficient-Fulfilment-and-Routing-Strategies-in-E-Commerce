@@ -174,7 +174,11 @@ class Environment:
             last_warehouse_id = last_customer.assigned_warehouse_id if last_customer.assigned_warehouse_id is not None else -1
             if last_warehouse_id == -1:
                 last_warehouse_id = 0  # Default to the first warehouse if none assigned (or handle appropriately)
+        if vehicle.route:
+            last_customer = self.customers[route[-1]]
+            last_warehouse_id = last_customer.assigned_warehouse_id if last_customer.assigned_warehouse_id is not None else 0  
             Dreturn = self.distance(vehicle.route[-1], self.warehouses[last_warehouse_id].location)
+
         else:
             Dreturn = 0
         Rterm = 2 * 0.7 - 1 / (P + 1) * (route_distance + Dreturn)
@@ -182,7 +186,9 @@ class Environment:
 
         return vrp_rewards
         
+
     def create_graph_matrices(self) -> Tuple[np.ndarray, np.ndarray]:
+
         n_warehouses = len(self.warehouses)
         n_customers = len(self.customers)
         n_nodes = n_warehouses + n_customers
